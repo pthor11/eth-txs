@@ -88,10 +88,7 @@ const run = async () => {
 
     } catch (error) {
         console.log(error);
-        
-        throw new Error({
-            error: error.response
-        })
+        start()
     }
 
 }
@@ -103,9 +100,9 @@ const rollback = async () => {
     }
     const fulltx_hashes = await FullTX.find({"transaction.blockNumber": {$gt: checkpoint.at}}, {_id: 0, hash: 1})
     const hashes = fulltx_hashes.map(fulltx => fulltx.hash)
-        
-    await FullTX.deleteMany({hash: {$in: hashes}})
     await ShortTX.deleteMany({hash: {$in: hashes}})
+    await FullTX.deleteMany({hash: {$in: hashes}})
+    
 }
 
 const start = async () => {
