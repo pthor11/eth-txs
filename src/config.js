@@ -8,16 +8,17 @@ const mongo = {
     url: process.env.MONGO_URL,
     port: process.env.MONGO_URL,
     db_auth: process.env.MONGO_DB_AUTH,
-    db_full_txs: process.env.MONGO_DB_FULL_TXS,
-    db_short_txs: process.env.MONGO_DB_SHORT_TXS
+    db_name: process.env.MONGO_DB_NAME
 }
 
-const parity = {
-    url: process.env.ETH_NODE_URL,
-    port: process.env.ETH_NODE_PORT
+const etc = {
+    url: process.env.ETC_NODE_URL,
+    port: process.env.ETC_NODE_PORT,
+    username: process.env.ETC_NODE_USERNAME,
+    password: process.env.ETC_NODE_PASSWORD,
 }
 
 export  {
     mongo,
-    parity
+    etc
 }

@@ -1,33 +1,25 @@
 import web3 from './web3'
-import FullTX from './models/TX.full'
-import ShortTX from './models/TX.short'
-import Checkpoint from './models/Checkpoint'
+import TX from './models/TX'
 import { checkCode } from './utils'
 
-let checkpoint = null
 
-const run = async () => {
+const run = async (blockNumber) => {
     try {
-        checkpoint = checkpoint || (await Checkpoint.findOne({ mission: 'eth-fulltx' }) || new Checkpoint({ mission: 'eth-fulltx', at: 0 }))
-
-        const blockNumber = checkpoint.at === 0 ? 0 : checkpoint.at + 1
-
+        
         const block = await web3.eth.getBlock(blockNumber)
-
+        
         if (!block) {
-            console.log(`eth-full-txs is up to date`)
+            console.log(`etc-txs is up to date`)
             setTimeout(start, 1000)
-            return false
+            return Promise.resolve(true)
         }
 
         const hashes = block.transactions
 
         const [transactions, receipts] = await Promise.all([
             Promise.all(hashes.map(hash => web3.eth.getTransaction(hash))),
-            Promise.all(hashes.map(hash =>  web3.eth.getTransactionReceipt(hash)))
-
+            Promise.all(hashes.map(hash => web3.eth.getTransactionReceipt(hash)))
         ])
-
 
         if (!((hashes.length === transactions.length) && (hashes.length === receipts.length))) {
             throw new Error({
@@ -36,8 +28,7 @@ const run = async () => {
             })
         }
 
-        let fullTXs = []
-        let shortTXs = []
+        let txs = []
 
         for (let i = 0; i < hashes.length; i++) {
             const hash = hashes[i]
@@ -51,41 +42,35 @@ const run = async () => {
                     checkCode(transaction.to)
                 ])
 
-                if (codes.includes('eth')) {
-                    const fullTX = new FullTX({
-                        hash,
-                        timestamp,
-                        transaction,
-                        receipt,
-                    })
+                if (codes.includes('etc')) {
 
-                    const shortTX = new ShortTX({
+                    const tx = {
                         hash,
                         timestamp,
+                        blockNumber,
                         from: transaction.from,
                         to: transaction.to,
                         value: transaction.value,
-                        fee: transaction.gasPrice * receipt.gasUsed,
+                        gasPrice: transaction.gasPrice,
+                        gasUsed: receipt.gasUsed,
                         status: receipt.status,
-                        coin: codes.find(code => code !== 'eth') || 'eth'
-                    })
-
-                    fullTXs.push(fullTX)
-                    shortTXs.push(shortTX)
+                        coin: codes.find(code => code !== 'etc') || 'etc'
+                    }
+            
+                    txs.push(tx)
                 }
             }
         }
-    
-        await Promise.all([
-            FullTX.insertMany(fullTXs),
-            ShortTX.insertMany(shortTXs)
-        ])
 
-        checkpoint.at += 1
-        await checkpoint.save()
-
-        run()
-
+        try {
+            await Promise.all(txs.map(tx => TX.findOneAndUpdate({ hash: tx.hash }, tx, { upsert: true, setDefaultsOnInsert: true })))
+            console.log(`blockNumber: ${blockNumber} txs: ${txs.length}`)
+            
+            run(blockNumber + 1)
+        } catch (error) {
+            console.log(error)
+            start()
+        }
     } catch (error) {
         console.log(error);
         start()
@@ -94,20 +79,23 @@ const run = async () => {
 }
 
 const rollback = async () => {
-    checkpoint = await Checkpoint.findOne({ mission: 'eth-fulltx' })
-    if (!checkpoint) {
-        return false
+    const lastTX = await TX.findOne({}, { _id: 0, blockNumber: 1 }).sort({ blockNumber: -1 })
+    if (lastTX) {
+        await TX.deleteMany({ blockNumber : lastTX.blockNumber})
+        return Promise.resolve(blockNumber)
+    } else {
+        return Promise.resolve(0)
     }
-    const fulltx_hashes = await FullTX.find({"transaction.blockNumber": {$gt: checkpoint.at}}, {_id: 0, hash: 1})
-    const hashes = fulltx_hashes.map(fulltx => fulltx.hash)
-    await ShortTX.deleteMany({hash: {$in: hashes}})
-    await FullTX.deleteMany({hash: {$in: hashes}})
-    
 }
 
-const start = async () => {
-    await rollback()
-    await run()
+const start = async () => {    
+    try {
+        const blockNumber = await rollback()
+        await run(blockNumber)
+    } catch (error) {
+        console.log(error)
+        start()
+    }
 }
 
 start()

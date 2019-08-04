@@ -1,5 +1,5 @@
 {
-  "name": "eth-txs",
+  "name": "etc-txs",
   "version": "1.0.0",
   "description": "",
   "main": "src/server.js",
@@ -9,26 +9,20 @@
     "serve": "babel-node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/pthor11/eth-txs.git"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/pthor11/eth-txs/issues"
-  },
-  "homepage": "https://github.com/pthor11/eth-txs#readme",
   "devDependencies": {
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.5",
     "@babel/node": "^7.4.5",
-    "@babel/preset-env": "^7.4.5"
+    "@babel/preset-env": "^7.4.5",
+    "nodemon": "^1.19.1"
   },
   "dependencies": {
     "dotenv": "^8.0.0",
     "mongoose": "^5.5.12",
-    "web3": "^1.0.0-beta.55"
+    "web3": "^1.2.0",
+    "core-js": "3"
   }
 }
