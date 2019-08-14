@@ -1,6 +1,6 @@
-# Ethereum Classic's transactions tracker
+# Ethereum's transactions tracker
 
-A ETC's transaction crawler. Features:
+A ETH's transaction crawler. Features:
   - Get and store raw transaction from blockchain. 
   - Process then store processed raw transaction.
 
@@ -10,7 +10,7 @@ Create `.env` as provided `.env.example` file.
 Install the dependencies and devDependencies and start the server.
 
 ```sh
-$ cd etc-txs
+$ cd eth-txs
 $ npm install
 $ npm start
 ```

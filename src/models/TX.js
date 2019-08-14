@@ -13,4 +13,4 @@ const ShortTXSchema = new mongoose.Schema({
     coin: { type: String, required: true, index: true }
 })
 
-export default mongoose.wallet_txs_conn.model('TX', ShortTXSchema, 'etc')
+export default mongoose.wallet_txs_conn.model('TX', ShortTXSchema, 'eth')

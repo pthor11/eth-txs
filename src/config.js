@@ -11,14 +11,11 @@ const mongo = {
     db_name: process.env.MONGO_DB_NAME
 }
 
-const etc = {
-    url: process.env.ETC_NODE_URL,
-    port: process.env.ETC_NODE_PORT,
-    username: process.env.ETC_NODE_USERNAME,
-    password: process.env.ETC_NODE_PASSWORD,
+const eth = {
+    url: process.env.ETH_NODE_URL
 }
 
 export  {
     mongo,
-    etc
+    eth
 }

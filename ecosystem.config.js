@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-      name: 'etc-txs',
+      name: 'eth-txs',
       script: 'dist/server.js',
       instances: 1,
       autorestart: true,

@@ -9,7 +9,7 @@ const run = async (blockNumber) => {
         const block = await web3.eth.getBlock(blockNumber)
         
         if (!block) {
-            console.log(`etc-txs is up to date`)
+            console.log(`eth-txs is up to date`)
             setTimeout(start, 1000)
             return Promise.resolve(true)
         }
@@ -42,7 +42,7 @@ const run = async (blockNumber) => {
                     checkCode(transaction.to)
                 ])
 
-                if (codes.includes('etc')) {
+                if (codes.includes('eth')) {
 
                     const tx = {
                         hash,
@@ -54,7 +54,7 @@ const run = async (blockNumber) => {
                         gasPrice: transaction.gasPrice,
                         gasUsed: receipt.gasUsed,
                         status: receipt.status,
-                        coin: codes.find(code => code !== 'etc') || 'etc'
+                        coin: codes.find(code => code !== 'eth') || 'eth'
                     }
             
                     txs.push(tx)
