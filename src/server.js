@@ -5,9 +5,9 @@ import { checkCode } from './utils'
 
 const run = async (blockNumber) => {
     try {
-        
+
         const block = await web3.eth.getBlock(blockNumber)
-        
+
         if (!block) {
             console.log(`eth-txs is up to date`)
             setTimeout(start, 1000)
@@ -56,7 +56,7 @@ const run = async (blockNumber) => {
                         status: receipt.status,
                         coin: codes.find(code => code !== 'eth') || 'eth'
                     }
-            
+
                     txs.push(tx)
                 }
             }
@@ -65,7 +65,7 @@ const run = async (blockNumber) => {
         try {
             await Promise.all(txs.map(tx => TX.findOneAndUpdate({ hash: tx.hash }, tx, { upsert: true, setDefaultsOnInsert: true })))
             console.log(`blockNumber: ${blockNumber} txs: ${txs.length}`)
-            
+
             run(blockNumber + 1)
         } catch (error) {
             console.log(error)
@@ -81,14 +81,17 @@ const run = async (blockNumber) => {
 const rollback = async () => {
     const lastTX = await TX.findOne({}, { _id: 0, blockNumber: 1 }).sort({ blockNumber: -1 })
     if (lastTX) {
-        await TX.deleteMany({ blockNumber : lastTX.blockNumber})
-        return Promise.resolve(blockNumber)
+        const blockNumber = lastTX.blockNumber
+        if (blockNumber) {
+            await TX.deleteMany({ blockNumber})
+            return Promise.resolve(blockNumber)
+        }
     } else {
-        return Promise.resolve(0)
+        return Promise.resolve(46147) // first ever block has transactions
     }
 }
 
-const start = async () => {    
+const start = async () => {
     try {
         const blockNumber = await rollback()
         await run(blockNumber)
