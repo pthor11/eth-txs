@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import {mongo} from './config'
+import { mongo } from './config'
 
 mongoose.Promise = global.Promise
 
@@ -8,7 +8,9 @@ const wallet_txs_uri = `mongodb://${mongo.user}:${mongo.password}@${mongo.url}:$
 const opts = {
     useNewUrlParser: true,
     useCreateIndex: true,
-    useFindAndModify: false
+    useFindAndModify: false,
+    reconnectTries: Number.MAX_VALUE, 
+    reconnectInterval: 1000
 }
 
 mongoose.wallet_txs_conn = mongoose.createConnection(wallet_txs_uri, opts)
